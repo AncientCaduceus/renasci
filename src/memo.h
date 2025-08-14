@@ -86,8 +86,8 @@ image_data_t* init_img_data(plint_t size) {	// CHECKED O2
 	data->comp_3 = (double*)malloc(size * sizeof(double));
 
     if (!data->comp_1) { free(data);  return NULL; }
-	if (!data->comp_2) { free(data);  return NULL; }
-	if (!data->comp_3) { free(data);  return NULL; }
+	if (!data->comp_2) { free(data);  return NULL; }		// ! ADD FREE
+	if (!data->comp_3) { free(data);  return NULL; }		// ! ADD FREE
 	
 	return data;
 }
