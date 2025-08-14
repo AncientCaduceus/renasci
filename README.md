@@ -1,1 +1,2 @@
 # renasci
+SHIT FOR SHIT
