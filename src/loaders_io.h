@@ -3,10 +3,22 @@
 
 #include <stddef.h>
 
-#define F_IO_ERR (1 << 0)
-#define F_IO_END (1 << 1)
+/*
+
+	FIX WIN
+
+*/
 
 typedef unsigned char _byte;
+
+typedef enum {
+	SUCCESS,
+	ERR_IOBAD_ALLOC,
+	ERR_IO_READ,
+	ERR_IO_OPEN,
+	ERR_IO_EOF,
+	ERR_IO_SBUF
+} IO_CODE;
 
 #ifdef _WIN32
 
@@ -22,12 +34,12 @@ typedef char CHAR;
 
 typedef struct {
 	HANDLE* h_file; 
-	ssize_t buf_size;
-	DWORD _err;
-	_byte* _base_ptr;	// NU
+	DWORD buf_size;
+	DWORD rdb;
+	DWORD err;
+	_byte end;
 	_byte* _cur_ptr;	// NU
 	_byte* _buf;
-	_byte _flags;
 } _io_file;
 
 #else 
@@ -36,10 +48,10 @@ typedef char CHAR;
 typedef struct {
 	int fd;
 	ssize_t buf_size;
-	_byte* _base_ptr;	// NU
+	ssize_t nrsize;
+	int err;
 	_byte* _cur_ptr;	// NU
 	_byte* _buf;
-	_byte _flags;
 } _io_file;
 
 #endif
@@ -48,18 +60,40 @@ typedef struct {
 	* @brief Open file only for read. 
 	* @param path Path to file
 	* @param buf_size Buffering size
+	* @param code Return error code
 	* @return File read handle
 */
 
-_io_file*	_io_lopen	(	const CHAR*		path, 	const size_t	buf_size	);
+_io_file*	_io_lopen	(	const CHAR*		path, 	const size_t	buf_size,	IO_CODE*	code);
 
 /*
-	* @brief Read from file buf_size bytes
+	* @brief Reads from a file buf_size bytes
 	* @param file File read handle
-	* @return Number of bytes read
+	* @param code Return error code
+	* @return void
 */
 
-ssize_t	_io_lread	(	_io_file*	file	);
+void	_io_lread	(	_io_file*	file,	IO_CODE*	code	);
+
+/*
+	* @brief Reads bytes from a file, saving unused ones
+	* @param file File read handle
+	* @param code Return error code
+	* @return void
+*/
+
+void	_io_lread_c	(	_io_file* file,	IO_CODE*	code	);
+
+/*
+	* @brief Returns a pointer to a buffer that contains exactly the desired size.
+	* @param file File read handle
+	* @param size Required size
+	* @param code Return error code
+	* @param sel_bytes Number of bytes provided
+	* @return buf pointer
+*/
+
+_byte*	_io_lselect	(	_io_file*	file,	unsigned int size,	IO_CODE* code, ssize_t* sel_bytes	);
 
 /*
 	* @brief Close file read handle & free allocated memory. Set file pointer NULL
