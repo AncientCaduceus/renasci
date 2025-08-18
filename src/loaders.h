@@ -101,9 +101,17 @@ typedef struct {
 	uint32_t bytes_per_sec;
 	uint16_t block_align;
 	uint16_t valid_bits_per_sample;
-	uint16_t extra_format_bytes;
 } riff_fmt_data;
 
+/*
 
+	STRUCTS. WAVE
+
+*/
+
+struct wave_hdl {
+	riff_fmt_data fmt;
+	unsigned char* data;
+};
 
 #endif

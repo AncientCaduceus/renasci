@@ -17,7 +17,7 @@ typedef enum {
 	ERR_IO_READ,
 	ERR_IO_OPEN,
 	ERR_IO_EOF,
-	ERR_IO_SBUF
+	ERR_IO_SEEK
 } IO_CODE;
 
 #ifdef _WIN32
@@ -85,7 +85,7 @@ void	_io_lread	(	_io_file*	file,	IO_CODE*	code	);
 void	_io_lread_c	(	_io_file* file,	IO_CODE*	code	);
 
 /*
-	* @brief Returns a pointer to a buffer that contains exactly the desired size.
+	* @brief Returns a pointer to a buffer that contains exactly the desired size
 	* @param file File read handle
 	* @param size Required size
 	* @param code Return error code
@@ -94,6 +94,16 @@ void	_io_lread_c	(	_io_file* file,	IO_CODE*	code	);
 */
 
 _byte*	_io_lselect	(	_io_file*	file,	unsigned int size,	IO_CODE* code, ssize_t* sel_bytes	);
+
+/*
+	* @brief Moves the file pointer and refills the buffer
+	* @param File read handle
+	* @param seek_size Offset
+	* @param code Return error code
+	* @return void
+*/
+
+void	_io_lseek	(	_io_file*	file,	off_t	seek_size,	IO_CODE*	code	);
 
 /*
 	* @brief Close file read handle & free allocated memory. Set file pointer NULL

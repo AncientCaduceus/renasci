@@ -5,7 +5,7 @@
 
 /*
 
-	FIX WiN. FIX ifdef. MEM LEAKS
+	FIX WiN. ADD SAFE_SEEK. Update Errors
 
 */
 
@@ -28,12 +28,15 @@
 static void _io_read(HANDLE h_file, void* buf, DWORD buf_size, DWORD* rdb, IO_CODE* code, int* err) {		
 		if (!ReadFile( h_file, buf, buf_size, rdb, NULL )) {
 			*code = ERR_IO_READ;
+			return;
 		}
 	
 		if (rdb == 0 && GetLastError() != ERROR_HANDLE_EOF) {
 			*code = ERR_IO_READ;
 			*err = GetLastError();
+			return;
 		}
+		*code = SUCCESS;
 }
 
 #else
@@ -43,10 +46,11 @@ static void _io_read(int fd, void* buf, ssize_t buf_size, ssize_t* rdb, IO_CODE*
 		if (*rdb == -1) {
 			*code = ERR_IO_READ;
 			*err = errno;
+			return;
 		}
-	
-		#endif
+		*code = SUCCESS;
 }
+#endif
 
 _io_file* _io_lopen(const CHAR* path, const size_t buf_size, IO_CODE* code) {		// CHECK WIN
 	_io_file* file = (_io_file*)malloc(sizeof(_io_file));
@@ -100,7 +104,6 @@ void _io_lread(_io_file* file, IO_CODE* code) {
 	#endif
 	
 	file->_cur_ptr = file->_buf;
-	*code = SUCCESS;
 }
 
 static _byte* _io_move_buf(_io_file* file) {
@@ -125,7 +128,6 @@ void _io_lread_c(_io_file* file, IO_CODE* code) {		// SLOW FOR MBs
 	_io_read(file->fd, start_ptr, file->buf_size - file->nrsize, &file->nrsize, code, &file->err);
 	file->nrsize += nrsize;
 	#endif
-	*code = SUCCESS;
 }
 
 _byte* _io_lselect(_io_file* file, unsigned int size, IO_CODE* code, ssize_t* sel_bytes) {
@@ -148,6 +150,33 @@ _byte* _io_lselect(_io_file* file, unsigned int size, IO_CODE* code, ssize_t* se
 	file->nrsize -= size;
 	file->_cur_ptr += size;
 	return res;
+}
+
+void _io_lseek(_io_file* file, off_t seek_size, IO_CODE* code) {
+	#ifdef _WIN32
+
+	LARGE_INTEGER offset;
+	offset.QuadPart = seek_size;
+
+	if (!SetFilePointerEx(file->h_file, offset, NULL, FILE_CURRENT)) {
+		*code = ERR_IO_SEEK;
+		file->err = GetLastError();
+		return;
+	}
+
+	_io_lread(file, code);
+
+	#else
+
+	if (lseek(file->fd, seek_size, SEEK_CUR) == -1) {
+		*code = ERR_IO_SEEK;
+		file->err = errno;
+		return;
+	}
+
+	_io_lread(file, code);
+
+	#endif
 }
 
 void _io_lclose(_io_file** file) {
