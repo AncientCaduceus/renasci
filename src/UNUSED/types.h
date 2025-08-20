@@ -1,0 +1,20 @@
+#ifndef REN_TYPES_H
+#define REN_TYPES_H
+
+typedef unsigned char _byte;
+
+typedef enum {
+	SUCCESS,
+	ERR_BUF_ZERO,
+	ERR_BAD_ALLOC,
+	ERR_IO_READ,
+	ERR_IO_OPEN,
+	ERR_IO_EOF,
+	ERR_IO_SEEK,
+	ERR_RIFF_FORMAT,
+	ERR_RIFF_TRUNCATED,
+	ERR_RIFF_INVALID_CK,
+	ERR_RIFF_UNSUP
+} ERR_CODE;
+
+#endif

@@ -2,23 +2,13 @@
 #define REN_LIO_H
 
 #include <stddef.h>
+#include "types.h"
 
 /*
 
 	FIX WIN
 
 */
-
-typedef unsigned char _byte;
-
-typedef enum {
-	SUCCESS,
-	ERR_IOBAD_ALLOC,
-	ERR_IO_READ,
-	ERR_IO_OPEN,
-	ERR_IO_EOF,
-	ERR_IO_SEEK
-} IO_CODE;
 
 #ifdef _WIN32
 
@@ -36,7 +26,6 @@ typedef struct {
 	HANDLE* h_file; 
 	DWORD buf_size;
 	DWORD rdb;
-	DWORD err;
 	_byte end;
 	_byte* _cur_ptr;	// NU
 	_byte* _buf;
@@ -49,7 +38,6 @@ typedef struct {
 	int fd;
 	ssize_t buf_size;
 	ssize_t nrsize;
-	int err;
 	_byte* _cur_ptr;	// NU
 	_byte* _buf;
 } _io_file;
@@ -64,7 +52,7 @@ typedef struct {
 	* @return File read handle
 */
 
-_io_file*	_io_lopen	(	const CHAR*		path, 	const size_t	buf_size,	IO_CODE*	code);
+_io_file*	_io_lopen	(	const CHAR*		path, 	const size_t	buf_size,	ERR_CODE*	code);
 
 /*
 	* @brief Reads from a file buf_size bytes
@@ -73,7 +61,7 @@ _io_file*	_io_lopen	(	const CHAR*		path, 	const size_t	buf_size,	IO_CODE*	code);
 	* @return void
 */
 
-void	_io_lread	(	_io_file*	file,	IO_CODE*	code	);
+void	_io_lread	(	_io_file*	file,	ERR_CODE*	code	);
 
 /*
 	* @brief Reads bytes from a file, saving unused ones
@@ -82,7 +70,7 @@ void	_io_lread	(	_io_file*	file,	IO_CODE*	code	);
 	* @return void
 */
 
-void	_io_lread_c	(	_io_file* file,	IO_CODE*	code	);
+void	_io_lread_c	(	_io_file* file,	ERR_CODE*	code	);
 
 /*
 	* @brief Returns a pointer to a buffer that contains exactly the desired size
@@ -93,7 +81,7 @@ void	_io_lread_c	(	_io_file* file,	IO_CODE*	code	);
 	* @return buf pointer
 */
 
-_byte*	_io_lselect	(	_io_file*	file,	unsigned int size,	IO_CODE* code, ssize_t* sel_bytes	);
+_byte*	_io_lselect	(	_io_file*	file,	unsigned int size,	ERR_CODE* code, ssize_t* sel_bytes	);
 
 /*
 	* @brief Moves the file pointer and refills the buffer
@@ -103,7 +91,7 @@ _byte*	_io_lselect	(	_io_file*	file,	unsigned int size,	IO_CODE* code, ssize_t* 
 	* @return void
 */
 
-void	_io_lseek	(	_io_file*	file,	off_t	seek_size,	IO_CODE*	code	);
+void	_io_lseek	(	_io_file*	file,	off_t	seek_size,	ERR_CODE*	code	);
 
 /*
 	* @brief Close file read handle & free allocated memory. Set file pointer NULL

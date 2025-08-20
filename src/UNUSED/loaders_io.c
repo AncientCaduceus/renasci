@@ -1,11 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "loaders_io.h"
+#include "types.h"
 
 
 /*
 
-	FIX WiN. ADD SAFE_SEEK. Update Errors
+	FIX WiN. ADD SAFE_SEEK. Update Errors. REWRITE!
 
 */
 
@@ -19,13 +20,13 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
 
 #endif
 
 #ifdef _WIN32
 
-static void _io_read(HANDLE h_file, void* buf, DWORD buf_size, DWORD* rdb, IO_CODE* code, int* err) {		
+static void _io_read(HANDLE h_file, void* buf, DWORD buf_size, DWORD* rdb, IO_CODE* code, int* err) {	
+
 		if (!ReadFile( h_file, buf, buf_size, rdb, NULL )) {
 			*code = ERR_IO_READ;
 			return;
@@ -33,7 +34,6 @@ static void _io_read(HANDLE h_file, void* buf, DWORD buf_size, DWORD* rdb, IO_CO
 	
 		if (rdb == 0 && GetLastError() != ERROR_HANDLE_EOF) {
 			*code = ERR_IO_READ;
-			*err = GetLastError();
 			return;
 		}
 		*code = SUCCESS;
@@ -41,21 +41,28 @@ static void _io_read(HANDLE h_file, void* buf, DWORD buf_size, DWORD* rdb, IO_CO
 
 #else
 
-static void _io_read(int fd, void* buf, ssize_t buf_size, ssize_t* rdb, IO_CODE* code, int* err) {	
+static void _io_read(int fd, void* buf, ssize_t buf_size, ssize_t* rdb, ERR_CODE* code) {	
+		
 		*rdb = read(fd, buf, buf_size);
 		if (*rdb == -1) {
 			*code = ERR_IO_READ;
-			*err = errno;
-			return;
+		
+		} else {
+			*code = SUCCESS;	
 		}
-		*code = SUCCESS;
+		
 }
 #endif
 
-_io_file* _io_lopen(const CHAR* path, const size_t buf_size, IO_CODE* code) {		// CHECK WIN
+_io_file* _io_lopen(const CHAR* path, const size_t buf_size, ERR_CODE* code) {		// CHECK WIN
+	if (buf_size == 0) {
+		*code = ERR_BUF_ZERO;
+		return NULL;	
+	}
+	
 	_io_file* file = (_io_file*)malloc(sizeof(_io_file));
 	if (!file) {
-		*code = ERR_IOBAD_ALLOC;
+		*code = ERR_BAD_ALLOC;
 		return NULL;
 	}
 	
@@ -84,7 +91,7 @@ _io_file* _io_lopen(const CHAR* path, const size_t buf_size, IO_CODE* code) {		/
 	_byte* buf = (_byte*)malloc(buf_size);
 	if (!buf) {
 		free(file);
-		*code = ERR_IO_OPEN;
+		*code = ERR_BAD_ALLOC;
 		return NULL;
 	}
 
@@ -96,7 +103,7 @@ _io_file* _io_lopen(const CHAR* path, const size_t buf_size, IO_CODE* code) {		/
 	return file;
 }
 
-void _io_lread(_io_file* file, IO_CODE* code) {	
+void _io_lread(_io_file* file, ERR_CODE* code) {	
 	#ifdef _WIN32
 	_io_read(file->h_file, file->_buf, file->buf_size, &file->nrsize, code, &file->err);
 	#else
@@ -112,7 +119,7 @@ static _byte* _io_move_buf(_io_file* file) {
 	return file->_buf + file->nrsize;
 }
 
-void _io_lread_c(_io_file* file, IO_CODE* code) {		// SLOW FOR MBs
+void _io_lread_c(_io_file* file, ERR_CODE* code) {		// SLOW FOR MBs
 	if (file->nrsize == 0) {
 		_io_lread(file, code);
 		return;
@@ -130,7 +137,7 @@ void _io_lread_c(_io_file* file, IO_CODE* code) {		// SLOW FOR MBs
 	#endif
 }
 
-_byte* _io_lselect(_io_file* file, unsigned int size, IO_CODE* code, ssize_t* sel_bytes) {
+_byte* _io_lselect(_io_file* file, unsigned int size, ERR_CODE* code, ssize_t* sel_bytes) {
 	if (file->nrsize < size) {
 	 	_io_lread_c(file, code);
 	 	if (*code != SUCCESS) {
@@ -152,7 +159,7 @@ _byte* _io_lselect(_io_file* file, unsigned int size, IO_CODE* code, ssize_t* se
 	return res;
 }
 
-void _io_lseek(_io_file* file, off_t seek_size, IO_CODE* code) {
+void _io_lseek(_io_file* file, off_t seek_size, ERR_CODE* code) {
 	#ifdef _WIN32
 
 	LARGE_INTEGER offset;
