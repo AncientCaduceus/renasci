@@ -2,17 +2,21 @@
 #define REN_LOADER_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include "types.h"
+#include "loaders_io.h"
+
+/*
+
+	Add IS_## funcs
+
+*/
 
 /*
 
 	ENUMS		! remove unnecessary
 
 */
-
-typedef enum {
-	SUCCESS,
-	ERR_BAD_ALLOC,
-} ERR_CODE;
 
 typedef enum {
 	UNKN = 0x0,
@@ -34,7 +38,6 @@ typedef enum {
 
 typedef enum {
 	IART = 0x49415254,
-	ICMT = 0x49434D54,
 	ICRD = 0x49435244,
 	IGNR = 0x49474E52,
 	INAM = 0x494E414D,
@@ -90,6 +93,26 @@ typedef struct {
 
 /*
 
+	CONTEXTS
+
+*/
+
+typedef struct {
+	_io_file* file;
+	CHUNK_ID ck_id;
+	uint32_t ck_size;
+	uint32_t ck_start;
+	CHUNK_ID par_ck_id;
+	uint32_t par_ck_size;
+	uint32_t rdb;
+	RIFF_TYPE type;
+	uint8_t pad;
+	ERR_CODE err;
+	int err_code;
+} riff_ctx;
+
+/*
+
 	STRUCTS. RIFF CHUNKS.
 
 */
@@ -109,9 +132,51 @@ typedef struct {
 
 */
 
-struct wave_hdl {
+typedef struct {
+	char* author;
+	char* name;
+	char* date;
+	char* album;
+	char* genre;
+} wave_metadata;
+
+typedef struct {
+	wave_metadata meta;
 	riff_fmt_data fmt;
-	unsigned char* data;
-};
+	_byte* data;
+} wave_hdl;
+
+
+/*
+
+	FUNCS
+
+*/
+
+
+/*
+	* @brief Allocate memory for riff_context
+	* return Ptr to riff_contex
+*/
+
+riff_ctx*	riff_init_ctx	(	void	);
+
+
+/*
+	* @brief Opens a file and fills the context
+	* @param path Path to the file to be opened
+	* @param ctx Riff context 
+	* @param buf_size Buffering size
+	* @return void
+*/
+
+void	open_riff	(	CHAR*	path,	riff_ctx*	ctx,	size_t	buf_size	);
+
+
+/*
+
+*/
+
+
 
 #endif
