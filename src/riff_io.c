@@ -5,11 +5,7 @@
 
 /*
 
-<<<<<<< HEAD
-	FIX ERROR HANDLERS
-=======
 	FIX ERROR HANDLERS. TEST
->>>>>>> origin/dev
 
 */
 
@@ -22,11 +18,7 @@
 #endif
 
 #ifdef _WIN32
-<<<<<<< HEAD
-	static void _io_read(io_file* file, void* buf, DWORD size, renerr_t* code) {	
-=======
 	static void _io_read(io_file* file, void* buf, BUFSIZE_T size, renerr_t* code) {	
->>>>>>> origin/dev
 		if (!ReadFile( file->h_file, buf, size, &file->nrsize, NULL )) {
 			*code = ERR_IO_READ;
 			return;
@@ -35,12 +27,6 @@
 			*code = ERR_IO_READ;
 			return;
 		}
-<<<<<<< HEAD
-		*code = SUCCESS;
-	}
-#else
-	static void _io_read(io_file* file, void* buf, size_t size, renerr_t* code) {	
-=======
 		if (file->nrsize == 0) {
 			*code = ERR_IO_EOF;
 			return;
@@ -49,19 +35,15 @@
 	}
 #else
 	static void _io_read(io_file* file, void* buf, BUFSIZE_T size, renerr_t* code) {	
->>>>>>> origin/dev
 		ssize_t rdb = read(file->fd, buf, size);
 		if (rdb == -1) {
 			*code = ERR_IO_READ;
 		} else {
-<<<<<<< HEAD
-=======
 			if (rdb == 0) {
 				*code = ERR_IO_EOF;
 				file->nrsize = 0;
 				return;
 			}
->>>>>>> origin/dev
 			file->nrsize = (size_t)rdb;
 			*code = SUCCESS;	
 		}
@@ -69,11 +51,7 @@
 #endif
 
 
-<<<<<<< HEAD
-io_file* io_open(const CHAR* path, size_t buf_size, renerr_t* code) {		// CHECK WIN
-=======
 io_file* io_open(const CHAR* path, BUFSIZE_T buf_size, renerr_t* code) {		// CHECK WIN
->>>>>>> origin/dev
 	if (buf_size == 0) buf_size = 4096;
 	
 	io_file* file = (io_file*)malloc(sizeof(io_file));
@@ -121,11 +99,7 @@ io_file* io_open(const CHAR* path, BUFSIZE_T buf_size, renerr_t* code) {		// CHE
 	return file;
 }
 
-<<<<<<< HEAD
-byte* io_read(io_file* file, unsigned int size, renerr_t* code) {		// OPT if-const
-=======
 byte* io_read(io_file* file, BUFSIZE_T size, renerr_t* code) {		// OPT if-const
->>>>>>> origin/dev
 	if (size > file->buf_size || size == 0) {
 		*code = ERR_OUT_OF_RANGE;
 		return NULL;
@@ -144,19 +118,12 @@ byte* io_read(io_file* file, BUFSIZE_T size, renerr_t* code) {		// OPT if-const
 		if (*code != SUCCESS) {
 			return NULL;
 		}
-<<<<<<< HEAD
-		if (file->nrsize < size) {
-			*code = ERR_IO_EOF;
-			return file->_cur_ptr;
-		}
-=======
 
 		if (file->nrsize < size) {
 			*code = ERR_IO_EOF;
 			return NULL;
 		}
 
->>>>>>> origin/dev
 		file->_cur_ptr = file->_buf + size;
 		file->nrsize -= size;
 		return file->_buf;
@@ -171,11 +138,7 @@ byte* io_read(io_file* file, BUFSIZE_T size, renerr_t* code) {		// OPT if-const
 		}
 		if (file->nrsize + nrsize < size) {
 			*code = ERR_IO_EOF;
-<<<<<<< HEAD
-			return file->_cur_ptr;
-=======
 			return NULL;
->>>>>>> origin/dev
 		}
 		
 		file->nrsize += nrsize - size;
@@ -184,13 +147,6 @@ byte* io_read(io_file* file, BUFSIZE_T size, renerr_t* code) {		// OPT if-const
 	}
 }
 
-<<<<<<< HEAD
-void io_lclose(io_file** file) {
-	#ifdef _WIN32
-	CloseHandle((*file)->h_file);
-	#else
-	close((*file)->fd);
-=======
 byte* io_get_ck_data(io_file* file, BUFSIZE_T size, renerr_t* code) {
 	byte* tmp = (byte*)malloc(size);
 	if (!tmp) {
@@ -243,7 +199,6 @@ void io_lclose(io_file** file) {
 		CloseHandle((*file)->h_file);
 	#else
 		close((*file)->fd);
->>>>>>> origin/dev
 	#endif
 	free((*file)->_buf);
 	free(*file);
