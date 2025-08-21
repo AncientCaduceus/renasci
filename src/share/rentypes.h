@@ -1,10 +1,7 @@
 #ifndef REN_TYPES_H
 #define REN_TYPES_H
 
-<<<<<<< HEAD
-=======
 	#include <stddef.h>
->>>>>>> origin/dev
 
 	/*
 
@@ -20,15 +17,10 @@
 		#else
 			typedef char CHAR;
 		#endif
-<<<<<<< HEAD
-	#else
-		typedef char CHAR;
-=======
 		typedef DWORD BUFSIZE_T
 	#else
 		typedef char CHAR;
 		typedef size_t BUFSIZE_T;
->>>>>>> origin/dev
 	#endif
 
 	/*
