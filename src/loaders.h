@@ -127,6 +127,7 @@ typedef struct {
 } riff_fmt_data;
 
 /*
+<<<<<<< HEAD
 
 	STRUCTS. WAVE
 
@@ -177,6 +178,16 @@ void	open_riff	(	CHAR*	path,	riff_ctx*	ctx,	size_t	buf_size	);
 
 */
 
+=======
+>>>>>>> origin/dev
 
+	STRUCTS. WAVE
+
+*/
+
+struct wave_hdl {
+	riff_fmt_data fmt;
+	unsigned char* data;
+};
 
 #endif

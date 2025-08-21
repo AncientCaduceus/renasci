@@ -2,6 +2,7 @@
 #include "loaders_io.h"
 
 #include <stdlib.h>
+<<<<<<< HEAD
 #include <string.h>
 
 riff_ctx* riff_init_ctx(void) {
@@ -25,5 +26,8 @@ void open_riff(CHAR* path, riff_ctx* ctx, size_t buf_size) {
 	ctx->file = file;
 	ctx->err = SUCCESS;
 }
+=======
+
+>>>>>>> origin/dev
 
 
